@@ -30,7 +30,13 @@ namespace Gemini.Modules.Shell.Commands
         public void Populate(Command command, List<Command> commands)
         {
             foreach (var editorProvider in _editorProviders)
+            {
+                if (!editorProvider.CanCreateNew)
+                    continue;
+
                 foreach (var editorFileType in editorProvider.FileTypes)
+                {
+
                     commands.Add(new Command(command.CommandDefinition)
                     {
                         Text = editorFileType.Name,
@@ -40,6 +46,8 @@ namespace Gemini.Modules.Shell.Commands
                             FileType = editorFileType
                         }
                     });
+                }
+            }
         }
 
         public Task Run(Command command)
