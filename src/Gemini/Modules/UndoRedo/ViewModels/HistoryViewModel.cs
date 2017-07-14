@@ -29,19 +29,19 @@ namespace Gemini.Modules.UndoRedo.ViewModels
                 {
                     _undoRedoManager.UndoStack.CollectionChanged -= OnUndoRedoStackChanged;
                     _undoRedoManager.RedoStack.CollectionChanged -= OnUndoRedoStackChanged;
-					_undoRedoManager.BatchBegin -= OnUndoRedoBatchBegin;
-					_undoRedoManager.BatchEnd -= OnUndoRedoBatchEnd;
+                    _undoRedoManager.BatchBegin -= OnUndoRedoBatchBegin;
+                    _undoRedoManager.BatchEnd -= OnUndoRedoBatchEnd;
 
-				}
+                }
 
                 _undoRedoManager = value;
                 if (_undoRedoManager != null)
                 {
                     _undoRedoManager.UndoStack.CollectionChanged += OnUndoRedoStackChanged;
                     _undoRedoManager.RedoStack.CollectionChanged += OnUndoRedoStackChanged;
-					_undoRedoManager.BatchBegin += OnUndoRedoBatchBegin;
-					_undoRedoManager.BatchEnd += OnUndoRedoBatchEnd;
-				}
+                    _undoRedoManager.BatchBegin += OnUndoRedoBatchBegin;
+                    _undoRedoManager.BatchEnd += OnUndoRedoBatchEnd;
+                }
                 RefreshHistory();
             }
         }
@@ -87,24 +87,24 @@ namespace Gemini.Modules.UndoRedo.ViewModels
             RefreshHistory();
         }
 
-		private bool _batchRunning = false;
+        private bool _batchRunning = false;
         private void OnUndoRedoBatchBegin(object sender, EventArgs e)
         {
             _batchRunning = true;
         }
 
-		private void OnUndoRedoBatchEnd(object sender, EventArgs e)
-		{
-			_batchRunning = false;
-			RefreshHistory();
-		}
+        private void OnUndoRedoBatchEnd(object sender, EventArgs e)
+        {
+            _batchRunning = false;
+            RefreshHistory();
+        }
 
         private void RefreshHistory()
         {
-			if (_batchRunning)
-				return;
+            if (_batchRunning)
+                return;
 
-			var historyItems = new BindableCollection<HistoryItemViewModel>();
+            var historyItems = new BindableCollection<HistoryItemViewModel>();
             if (_undoRedoManager != null)
             {
                 historyItems.Add(new HistoryItemViewModel(Resources.HistoryInitialState,
@@ -118,8 +118,8 @@ namespace Gemini.Modules.UndoRedo.ViewModels
                         HistoryItemType.Redo));
             }
 
-			_historyItems = historyItems;
-			NotifyOfPropertyChange(nameof(HistoryItems));
+            _historyItems = historyItems;
+            NotifyOfPropertyChange(nameof(HistoryItems));
 
             if (!_internallyTriggeredChange)
                 UpdateSelectedIndexOnly(_historyItems.Count);
