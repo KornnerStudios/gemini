@@ -58,6 +58,8 @@ namespace Gemini.Modules.MainMenu.Models
             _parent = parent;
 
             _listItems = new List<StandardMenuItem>();
+
+            _command.PropertyChanged += CommandPropertyChanged;
         }
 
         CommandDefinitionBase ICommandUiItem.CommandDefinition
@@ -90,6 +92,25 @@ namespace Gemini.Modules.MainMenu.Models
                     _parent.Children.Insert(startIndex++, newMenuItem);
                     _listItems.Add(newMenuItem);
                 }
+            }
+        }
+
+        void CommandPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(_command.Visible):
+                    NotifyOfPropertyChange(nameof(IsVisible));
+                    break;
+
+                case nameof(_command.Checked):
+                    NotifyOfPropertyChange(nameof(IsChecked));
+                    break;
+
+                case nameof(_command.Text):
+                case nameof(_command.IconSource):
+                    NotifyOfPropertyChange(e.PropertyName);
+                    break;
             }
         }
     }
