@@ -23,11 +23,11 @@ namespace Gemini.Modules.Shell.ViewModels
         public event EventHandler ActiveDocumentChanged;
 
 #pragma warning disable 649
-		[ImportMany(typeof(IModule))]
-		private IEnumerable<IModule> _modules;
+        [ImportMany(typeof(IModule))]
+        private IEnumerable<IModule> _modules;
 
         [Import]
-	    private IThemeManager _themeManager;
+        private IThemeManager _themeManager;
 
         [Import]
         private IMenu _mainMenu;
@@ -43,7 +43,7 @@ namespace Gemini.Modules.Shell.ViewModels
 #pragma warning restore 649
 
         private IShellView _shellView;
-	    private bool _closing;
+        private bool _closing;
 
         public IMenu MainMenu
         {
@@ -55,28 +55,28 @@ namespace Gemini.Modules.Shell.ViewModels
             get { return _toolBars; }
         }
 
-		public IStatusBar StatusBar
-		{
-			get { return _statusBar; }
-		}
+        public IStatusBar StatusBar
+        {
+            get { return _statusBar; }
+        }
 
-	    private ILayoutItem _activeLayoutItem;
-	    public ILayoutItem ActiveLayoutItem
-	    {
-	        get { return _activeLayoutItem; }
-	        set
-	        {
-	            if (ReferenceEquals(_activeLayoutItem, value))
-	                return;
+        private ILayoutItem _activeLayoutItem;
+        public ILayoutItem ActiveLayoutItem
+        {
+            get { return _activeLayoutItem; }
+            set
+            {
+                if (ReferenceEquals(_activeLayoutItem, value))
+                    return;
 
-	            _activeLayoutItem = value;
+                _activeLayoutItem = value;
 
-	            if (value is IDocument)
-	                ActivateItem((IDocument) value);
+                if (value is IDocument)
+                    ActivateItem((IDocument) value);
 
-	            NotifyOfPropertyChange(() => ActiveLayoutItem);
-	        }
-	    }
+                NotifyOfPropertyChange(() => ActiveLayoutItem);
+            }
+        }
 
         private readonly BindableCollection<ITool> _tools;
         public IObservableCollection<ITool> Tools
@@ -102,10 +102,10 @@ namespace Gemini.Modules.Shell.ViewModels
             }
         }
 
-	    public virtual string StateFile
-	    {
-	        get { return @".\ApplicationState.bin"; }
-	    }
+        public virtual string StateFile
+        {
+            get { return @".\ApplicationState.bin"; }
+        }
 
         public bool HasPersistedState
         {
@@ -119,16 +119,16 @@ namespace Gemini.Modules.Shell.ViewModels
             _tools = new BindableCollection<ITool>();
         }
 
-	    protected override void OnViewLoaded(object view)
-	    {
+        protected override void OnViewLoaded(object view)
+        {
             foreach (var module in _modules)
                 foreach (var globalResourceDictionary in module.GlobalResourceDictionaries)
                     Application.Current.Resources.MergedDictionaries.Add(globalResourceDictionary);
 
-	        foreach (var module in _modules)
-	            module.PreInitialize();
-	        foreach (var module in _modules)
-	            module.Initialize();
+            foreach (var module in _modules)
+                module.PreInitialize();
+            foreach (var module in _modules)
+                module.Initialize();
 
             // If after initialization no theme was loaded, load the default one
             if (_themeManager.CurrentTheme == null)
@@ -159,31 +159,33 @@ namespace Gemini.Modules.Shell.ViewModels
             base.OnViewLoaded(view);
         }
 
-	    public void ShowTool<TTool>()
+        public void ShowTool<TTool>()
             where TTool : ITool
-	    {
-	        ShowTool(IoC.Get<TTool>());
-	    }
+        {
+            ShowTool(IoC.Get<TTool>());
+        }
 
-	    public void ShowTool(ITool model)
-		{
-		    if (Tools.Contains(model))
-		        model.IsVisible = true;
-		    else
-		        Tools.Add(model);
-		    model.IsSelected = true;
-	        ActiveLayoutItem = model;
-		}
+        public void ShowTool(ITool model)
+        {
+            if (Tools.Contains(model))
+                model.IsVisible = true;
+            else
+                Tools.Add(model);
+            model.IsSelected = true;
+            ActiveLayoutItem = model;
 
-		public void OpenDocument(IDocument model)
-		{
-			ActivateItem(model);
-		}
+            model.Activate();
+        }
 
-		public void CloseDocument(IDocument document)
-		{
-			DeactivateItem(document, true);
-		}
+        public void OpenDocument(IDocument model)
+        {
+            ActivateItem(model);
+        }
+
+        public void CloseDocument(IDocument document)
+        {
+            DeactivateItem(document, true);
+        }
 
         private bool _activateItemGuard = false;
 
@@ -213,19 +215,19 @@ namespace Gemini.Modules.Shell.ViewModels
             }
         }
 
-	    private void RaiseActiveDocumentChanging()
-	    {
+        private void RaiseActiveDocumentChanging()
+        {
             var handler = ActiveDocumentChanging;
             if (handler != null)
                 handler(this, EventArgs.Empty);
-	    }
+        }
 
-	    private void RaiseActiveDocumentChanged()
-	    {
+        private void RaiseActiveDocumentChanged()
+        {
             var handler = ActiveDocumentChanged;
             if (handler != null)
                 handler(this, EventArgs.Empty);
-	    }
+        }
 
         protected override void OnActivationProcessed(IDocument item, bool success)
         {
@@ -235,26 +237,26 @@ namespace Gemini.Modules.Shell.ViewModels
             base.OnActivationProcessed(item, success);
         }
 
-	    public override void DeactivateItem(IDocument item, bool close)
-	    {
-	        RaiseActiveDocumentChanging();
+        public override void DeactivateItem(IDocument item, bool close)
+        {
+            RaiseActiveDocumentChanging();
 
-	        base.DeactivateItem(item, close);
+            base.DeactivateItem(item, close);
 
             RaiseActiveDocumentChanged();
-	    }
+        }
 
-	    protected override void OnDeactivate(bool close)
+        protected override void OnDeactivate(bool close)
         {
             // Workaround for a complex bug that occurs when
             // (a) the window has multiple documents open, and
             // (b) the last document is NOT active
-            // 
+            //
             // The issue manifests itself with a crash in
             // the call to base.ActivateItem(item), above,
             // saying that the collection can't be changed
             // in a CollectionChanged event handler.
-            // 
+            //
             // The issue occurs because:
             // - Caliburn.Micro sees the window is closing, and calls Items.Clear()
             // - AvalonDock handles the CollectionChanged event, and calls Remove()
@@ -279,5 +281,5 @@ namespace Gemini.Modules.Shell.ViewModels
         {
             Application.Current.MainWindow.Close();
         }
-	}
+    }
 }
